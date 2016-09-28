@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ "$1" == "normal" ]; then
+  xrandr -o normal
+  xinput set-prop $(xinput list --id-only "ELAN Touchscreen") "Coordinate Transformation Matrix" 1 0 0 0 1 0 0 0 1
+fi
+if [ "$1" == "bottom-up" ]; then
+  xrandr -o inverted
+  xinput set-prop $(xinput list --id-only "ELAN Touchscreen") "Coordinate Transformation Matrix" -1 0 1 0 -1 1 0 0 1
+fi
+if [ "$1" == "left-up" ]; then
+  xrandr -o left
+  xinput set-prop $(xinput list --id-only "ELAN Touchscreen") "Coordinate Transformation Matrix" 0 -1 1 1 0 0 0 0 1
+fi
+if [ "$1" == "right-up" ]; then
+  xrandr -o right
+  xinput set-prop $(xinput list --id-only "ELAN Touchscreen") "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+fi
