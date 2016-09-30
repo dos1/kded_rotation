@@ -29,6 +29,7 @@ void ScreenRotator::startProgress() {
 }
 
 void ScreenRotator::updateProgress() {
+	if (!sensor->reading()) return;
 	if (sensor->reading()->orientation() != currentOrientation) {
 		progress++;
 
@@ -56,6 +57,7 @@ void ScreenRotator::updateProgress() {
 }
 
 void ScreenRotator::updateOrientation() {
+	if (!sensor->reading()) return;
 	currentOrientation = sensor->reading()->orientation();
 	QString o;
 	switch (currentOrientation) {
