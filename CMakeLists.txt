@@ -57,3 +57,7 @@ install(FILES kded_rotation.desktop
 install(TARGETS kded_rotation
         DESTINATION ${PLUGIN_INSTALL_DIR}
 )
+
+install(FILES orientation-helper
+	DESTINATION ${BIN_INSTALL_DIR}
+)
