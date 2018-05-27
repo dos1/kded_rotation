@@ -1,21 +1,50 @@
 #!/bin/bash
 
-#TOUCHSCREEN_ID="ELAN Touchscreen"
-TOUCHSCREEN_ID="ELAN21EF:00 04F3:21EF"
+if [ $# -lt 1 -o "$1" == "-h" -o  "$1" == "--help" ]
+then
+	echo "Call with"
+	echo "   $0 <orientation>"
+	echo "where <orientation> can be one of normal, bottom-up, left-up, right-up"
+	exit -1
+fi
+
+GENERIC_PROP="Coordinate Transformation Matrix"
+GENERIC=""
+
+WACOM_PROP="Wacom Rotation"
+WACOM=""
 
 if [ "$1" == "normal" ]; then
   xrandr -o normal
-  xinput set-prop $(xinput list --id-only "$TOUCHSCREEN_ID") "Coordinate Transformation Matrix" 1 0 0 0 1 0 0 0 1
+  GENERIC="1 0 0 0 1 0 0 0 1"
+  WACOM="0"
 fi
 if [ "$1" == "bottom-up" ]; then
   xrandr -o inverted
-  xinput set-prop $(xinput list --id-only "$TOUCHSCREEN_ID") "Coordinate Transformation Matrix" -1 0 1 0 -1 1 0 0 1
+  GENERIC="-1 0 1 0 -1 1 0 0 1"
+  WACOM="3"
 fi
 if [ "$1" == "left-up" ]; then
   xrandr -o left
-  xinput set-prop $(xinput list --id-only "$TOUCHSCREEN_ID") "Coordinate Transformation Matrix" 0 -1 1 1 0 0 0 0 1
+  GENERIC="0 -1 1 1 0 0 0 0 1"
+  WACOM="2"
 fi
 if [ "$1" == "right-up" ]; then
   xrandr -o right
-  xinput set-prop $(xinput list --id-only "$TOUCHSCREEN_ID") "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+  GENERIC="0 1 0 -1 0 1 0 0 1"
+  WACOM="1"
 fi
+
+for id in $(xinput list --id-only)
+do
+	HAS_WACOM=`xinput list-props $id | grep "$WACOM_PROP"`
+	HAS_GENERIC=`xinput list-props $id | grep "$GENERIC_PROP"`
+
+	if [ "x$HAS_WACOM" != "x" ]
+	then
+		xinput set-prop $id "$WACOM_PROP" $WACOM
+	elif [ "x$HAS_GENERIC" != "x" ]
+	then
+		xinput set-prop $id "$GENERIC_PROP" $GENERIC
+	fi
+done
