@@ -37,8 +37,20 @@ fi
 
 for id in $(xinput list --id-only)
 do
-	HAS_WACOM=`xinput list-props $id | grep "$WACOM_PROP"`
-	HAS_GENERIC=`xinput list-props $id | grep "$GENERIC_PROP"`
+	props=`xinput list-props $id`
+
+	# Guess whether it's a touch screen based on some key words
+	IS_TOUCH=`echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)'`
+
+	if [ "x$IS_TOUCH" == "x" ]
+	then
+		# Skip non touch devices
+		continue
+	fi
+
+	# Detect type of touch
+	HAS_WACOM=`echo $props | grep "$WACOM_PROP"`
+	HAS_GENERIC=`echo $props | grep "$GENERIC_PROP"`
 
 	if [ "x$HAS_WACOM" != "x" ]
 	then
