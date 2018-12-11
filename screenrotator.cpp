@@ -74,11 +74,11 @@ void ScreenRotator::updateOrientation() {
 			o = "right-up";
 			break;
 		default:
-			o = "other";
+			o = "none";
 			return;
 	}
 
-	helper.start("orientation-helper", {o});
+	helper.start("orientation-helper", {"-r", o});
 
 }
 
