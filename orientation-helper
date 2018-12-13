@@ -9,11 +9,11 @@ WACOM_PROP="Wacom Rotation"
 WACOM=""
 
 function usage {
-	echo "KDED Orientation Helper Arguments"
-	echo "-o | --output : A display name like eDP-1 (primary display is used by default)"
-	echo "-r | --rotation : normal, bottom-up, left-up, right-up"
-	echo "-h | --help : Arguments help"
-	exit 1
+  echo "KDED Orientation Helper Arguments"
+  echo "-o | --output : A display name like eDP-1 (primary display is used by default)"
+  echo "-r | --rotation : normal, bottom-up, left-up, right-up"
+  echo "-h | --help : Arguments help"
+  exit 1
 }
 
 while [ "$1" != "" ]; do
@@ -57,24 +57,24 @@ fi
 
 for id in $(xinput list --id-only)
 do
-	props=$(xinput list-props $id)
+  props=$(xinput list-props $id)
 
-	# Filter for touch devices
-	IS_TOUCH=$(echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)')
+  # Filter for touch devices
+  IS_TOUCH=$(echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)')
 
   # Apply Input Matrix for touch devices
-	if [ -n "$IS_TOUCH" ];
-	then
-    # Detect type of touch
-    HAS_WACOM=$(echo "$props" | grep "$WACOM_PROP")
-    HAS_GENERIC=$(echo "$props" | grep "$GENERIC_PROP")
+  if [ -n "$IS_TOUCH" ];
+    then
+      # Detect type of touch
+      HAS_WACOM=$(echo "$props" | grep "$WACOM_PROP")
+      HAS_GENERIC=$(echo "$props" | grep "$GENERIC_PROP")
 
-    if [ -n "$HAS_WACOM" ]
-    then
-      xinput set-prop $id "$WACOM_PROP" $WACOM 2>/dev/null
-    elif [ -n "$HAS_GENERIC" ]
-    then
-      xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
+      if [ -n "$HAS_WACOM" ]
+      then
+        xinput set-prop $id "$WACOM_PROP" $WACOM 2>/dev/null
+      elif [ -n "$HAS_GENERIC" ]
+      then
+        xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
+      fi
     fi
-	fi
 done
