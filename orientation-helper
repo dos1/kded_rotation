@@ -1,12 +1,6 @@
 #!/bin/bash
 
-if [ $# -lt 1 -o "$1" == "-h" -o  "$1" == "--help" ]
-then
-	echo "Call with"
-	echo "   $0 <orientation>"
-	echo "where <orientation> can be one of normal, bottom-up, left-up, right-up"
-	exit -1
-fi
+PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 
 GENERIC_PROP="Coordinate Transformation Matrix"
 GENERIC=""
@@ -14,49 +8,73 @@ GENERIC=""
 WACOM_PROP="Wacom Rotation"
 WACOM=""
 
-if [ "$1" == "normal" ]; then
-  xrandr -o normal
+function usage {
+  echo "KDED Orientation Helper Arguments"
+  echo "-o | --output : A display name like eDP-1 (primary display is used by default)"
+  echo "-r | --rotation : normal, bottom-up, left-up, right-up"
+  echo "-h | --help : Arguments help"
+  exit 1
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -o | --output )           shift
+                              PRIMARY_DISPLAY=$1
+                              ;;
+    -r | --rotation )         shift
+                              ROTATION=$1
+                              ;;
+    -h | --help )
+                              usage
+                              ;;
+    * )
+                              usage
+  esac
+  shift
+done
+
+if [ -z "$ROTATION" ]; then
+  usage
+fi
+
+if [ "$ROTATION" == "normal" ]; then
+  xrandr --output $PRIMARY_DISPLAY --rotate normal
   GENERIC="1 0 0 0 1 0 0 0 1"
   WACOM="0"
-fi
-if [ "$1" == "bottom-up" ]; then
-  xrandr -o inverted
+elif [ "$ROTATION" == "bottom-up" ]; then
+  xrandr --output $PRIMARY_DISPLAY --rotate inverted
   GENERIC="-1 0 1 0 -1 1 0 0 1"
   WACOM="3"
-fi
-if [ "$1" == "left-up" ]; then
-  xrandr -o left
+elif [ "$ROTATION" == "left-up" ]; then
+  xrandr --output $PRIMARY_DISPLAY --rotate left
   GENERIC="0 -1 1 1 0 0 0 0 1"
   WACOM="2"
-fi
-if [ "$1" == "right-up" ]; then
-  xrandr -o right
+elif [ "$ROTATION" == "right-up" ]; then
+  xrandr --output $PRIMARY_DISPLAY --rotate right
   GENERIC="0 1 0 -1 0 1 0 0 1"
   WACOM="1"
 fi
 
 for id in $(xinput list --id-only)
 do
-	props=`xinput list-props $id`
+  props=$(xinput list-props $id)
 
-	# Guess whether it's a touch screen based on some key words
-	IS_TOUCH=`echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)'`
+  # Filter for touch devices
+  IS_TOUCH=$(echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)')
 
-	if [ "x$IS_TOUCH" == "x" ]
-	then
-		# Skip non touch devices
-		continue
-	fi
+  # Apply Input Matrix for touch devices
+  if [ -n "$IS_TOUCH" ];
+    then
+      # Detect type of touch
+      HAS_WACOM=$(echo "$props" | grep "$WACOM_PROP")
+      HAS_GENERIC=$(echo "$props" | grep "$GENERIC_PROP")
 
-	# Detect type of touch
-	HAS_WACOM=`echo $props | grep "$WACOM_PROP"`
-	HAS_GENERIC=`echo $props | grep "$GENERIC_PROP"`
-
-	if [ "x$HAS_WACOM" != "x" ]
-	then
-		xinput set-prop $id "$WACOM_PROP" $WACOM
-	elif [ "x$HAS_GENERIC" != "x" ]
-	then
-		xinput set-prop $id "$GENERIC_PROP" $GENERIC
-	fi
+      if [ -n "$HAS_WACOM" ]
+      then
+        xinput set-prop $id "$WACOM_PROP" $WACOM 2>/dev/null
+      elif [ -n "$HAS_GENERIC" ]
+      then
+        xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
+      fi
+    fi
 done
