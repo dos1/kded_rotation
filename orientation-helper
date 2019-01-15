@@ -5,6 +5,9 @@ PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 GENERIC_PROP="Coordinate Transformation Matrix"
 GENERIC=""
 
+PEN_PROP="Pen Pen" #Definition for Surface Pen.
+PEN=""
+
 WACOM_PROP="Wacom Rotation"
 WACOM=""
 
@@ -60,7 +63,7 @@ do
   props=$(xinput list-props $id)
 
   # Filter for touch devices
-  IS_TOUCH=$(echo $props | grep -i '\(Touchscreen\|ELAN\|wacom\)')
+  IS_TOUCH=$(echo $props | grep -i '\(Touchscreen\|ELAN\|Pen Pen\|wacom\)') #Added detection for Surface Pen.
 
   # Apply Input Matrix for touch devices
   if [ -n "$IS_TOUCH" ];
@@ -75,6 +78,9 @@ do
       elif [ -n "$HAS_GENERIC" ]
       then
         xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
+       elif [ -n "$HAS_PEN" ]  #Added coordination transformation for Surface Pen on Surface devices.
+       then
+       xinput set-prop $id "$PEN_PROP" $GENERIC 2>/dev/null
       fi
     fi
 done
