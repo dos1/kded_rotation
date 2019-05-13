@@ -74,7 +74,7 @@ do
         xinput set-prop $id "$WACOM_PROP" $WACOM 2>/dev/null
       elif [ -n "$HAS_GENERIC" ]
       then
-        xinput set-prop $id "$GENERIC_PROP" $GENERIC>/dev/null
+        xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
       fi
     fi
 done
