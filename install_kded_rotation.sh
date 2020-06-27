@@ -27,7 +27,6 @@ function install_application {
     echo ""
     if [[ $INSTALL_CHOICE =~ ^[Yy]$ ]]; then
       sudo make install
-      sudo chmod +x /usr/bin/orientation-helper
     fi
   fi
 }
