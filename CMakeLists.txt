@@ -58,6 +58,6 @@ install(TARGETS kded_rotation
         DESTINATION ${PLUGIN_INSTALL_DIR}
 )
 
-install(FILES orientation-helper
+install(PROGRAMS orientation-helper
 	DESTINATION ${BIN_INSTALL_DIR}
 )
