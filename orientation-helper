@@ -60,7 +60,7 @@ do
   props=$(xinput list-props $id)
 
   # Filter for touch devices
-  IS_TOUCH=$(echo $props | grep -i 'Touchscreen\|ELAN\|Pen\|Eraser\|wacom\|maXTouch\|IPTS')
+  IS_TOUCH=$(echo $props | grep -i 'Touchscreen\|ELAN\|Pen\|Eraser\|wacom\|maXTouch\|eGalaxTouch\|IPTS')
 
   # Apply Input Matrix for touch devices
   if [ -n "$IS_TOUCH" ];
