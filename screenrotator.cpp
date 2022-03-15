@@ -12,15 +12,15 @@ ScreenRotator::ScreenRotator(QObject *parent, const QVariantList &) :
 
 	sensor->start();
 
-	connect(sensor, &QOrientationSensor::readingChanged, this, &ScreenRotator::startProgress);
-	connect(&timer, &QTimer::timeout, this, &ScreenRotator::updateProgress);
+	connect(sensor, &QOrientationSensor::readingChanged, this, &ScreenRotator::updateOrientation);
+	//connect(&timer, &QTimer::timeout, this, &ScreenRotator::updateProgress);
 
 	updateOrientation();
 
-	progress = -1;
+	//progress = -1;
 
 }
-
+/*
 void ScreenRotator::startProgress() {
 	if (progress == -1) {
 		timer.start(25);
@@ -55,9 +55,10 @@ void ScreenRotator::updateProgress() {
 		progress = -1;
 	}
 }
-
+*/
 void ScreenRotator::updateOrientation() {
 	if (!sensor->reading()) return;
+	if (sensor->reading()->orientation() == currentOrientation) return;
 	currentOrientation = sensor->reading()->orientation();
 	QString o;
 	switch (currentOrientation) {
