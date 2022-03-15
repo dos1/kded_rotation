@@ -1,5 +1,35 @@
 #!/bin/bash
 
+
+if [[ "$1" == "--togglelock" ]]; then
+        loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+        if [[ "$loadedmodules" = *kded_rotation* ]]; then
+                qdbus org.kde.kded5 /kded unloadModule kded_rotation
+        else
+                qdbus org.kde.kded5 /kded loadModule rotation
+        fi
+        exit
+fi
+
+
+if [[ "$1" == "--lock" ]]; then
+        loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+        if [[ "$loadedmodules" = *kded_rotation* ]]; then
+                qdbus org.kde.kded5 /kded unloadModule kded_rotation
+        fi
+        exit
+fi
+
+
+if [[ "$1" == "--unlock" ]]; then
+        loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+        if [[ "$loadedmodules" != *kded_rotation* ]]; then
+                qdbus org.kde.kded5 /kded loadModule rotation
+        fi
+        exit
+fi
+
+
 PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 
 GENERIC_PROP="Coordinate Transformation Matrix"
@@ -13,6 +43,9 @@ function usage {
   echo "-o | --output : A display name like eDP-1 (primary display is used by default)"
   echo "-r | --rotation : normal, bottom-up, left-up, right-up"
   echo "-h | --help : Arguments help"
+  echo "--togglelock : toggle rotation lock"
+  echo "--lock : lock rotation"
+  echo "--unlock : unlock rotation"
   exit 1
 }
 
