@@ -28,6 +28,7 @@ function unlock {
     exit
 }
 
+
 PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 
 GENERIC_PROP="Coordinate Transformation Matrix"
