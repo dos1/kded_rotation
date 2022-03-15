@@ -5,9 +5,9 @@
 function toggle {
     loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
     if [[ "$loadedmodules" = *kded_rotation* ]]; then
-            qdbus org.kde.kded5 /kded unloadModule kded_rotation
+            lock
     else
-            qdbus org.kde.kded5 /kded loadModule rotation
+            unlock
     fi
     exit
 }
@@ -16,6 +16,7 @@ function lock {
     loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
     if [[ "$loadedmodules" = *kded_rotation* ]]; then
             qdbus org.kde.kded5 /kded unloadModule kded_rotation
+            qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText rotation-locked-landscape "Автоповорот экрана выключен"
     fi
     exit
 }
@@ -24,6 +25,7 @@ function unlock {
     loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
     if [[ "$loadedmodules" != *kded_rotation* ]]; then
             qdbus org.kde.kded5 /kded loadModule rotation
+            qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText rotation-allowed "Автоповорот экрана включен"
     fi
     exit
 }
@@ -65,7 +67,6 @@ function usage {
   echo "-t | --togglelock : toggle rotation lock"
   echo "-l | --lock : lock rotation"
   echo "-u | --unlock : unlock rotation"
-  echo "-n | --next : rotates display 90 degrees clockwise"
   exit 1
 }
 
