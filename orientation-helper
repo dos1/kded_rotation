@@ -28,6 +28,26 @@ function unlock {
     exit
 }
 
+function next {
+    CURRENT=$(xrandr | grep primary | awk '{print $5}')
+    #echo $CURRENT
+    case $CURRENT in
+    "(normal" )
+      ROTATION="right-up"
+      ;;
+    "right" )
+      ROTATION="bottom-up"
+      ;;
+    "left" )
+      ROTATION="normal"
+      ;;
+    "inverted" )
+      ROTATION="left-up"
+      ;;
+    *)
+      ;;
+    esac
+}
 
 PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 
@@ -45,6 +65,7 @@ function usage {
   echo "-t | --togglelock : toggle rotation lock"
   echo "-l | --lock : lock rotation"
   echo "-u | --unlock : unlock rotation"
+  echo "-n | --next : rotates display 90 degrees clockwise"
   exit 1
 }
 
@@ -67,6 +88,9 @@ while [ "$1" != "" ]; do
                               ;;
     -u | --unlock )
                               unlock
+                              ;;
+    -n | --next )
+                              next
                               ;;
     * )
                               usage
