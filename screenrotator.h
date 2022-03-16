@@ -21,6 +21,7 @@ class ScreenRotator : public KDEDModule
 		QOrientationSensor *sensor;
 		QOrientationReading::Orientation currentOrientation;
 		QProcess helper;
+		QProcess watcher;
 };
 
 #endif // MAINWINDOW_H
