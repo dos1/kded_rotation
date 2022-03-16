@@ -15,14 +15,10 @@ class ScreenRotator : public KDEDModule
 	public:
 		ScreenRotator(QObject *parent, const QVariantList &);
 		void updateOrientation();
-		void startProgress();
-		void updateProgress();
 		~ScreenRotator();
 
 	private:
 		QOrientationSensor *sensor;
-		int progress;
-		QTimer timer;
 		QOrientationReading::Orientation currentOrientation;
 		QProcess helper;
 };
