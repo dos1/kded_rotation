@@ -11,6 +11,7 @@ ScreenRotator::ScreenRotator(QObject *parent, const QVariantList &) :
 	sensor = new QOrientationSensor(this);
 
 	sensor->start();
+	watcher.start("mode_watcher");
 
 	connect(sensor, &QOrientationSensor::readingChanged, this, &ScreenRotator::updateOrientation);
 
