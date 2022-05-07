@@ -1,5 +1,56 @@
 #!/bin/bash
 
+
+
+function toggle {
+    loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+    if [[ "$loadedmodules" = *kded_rotation* ]]; then
+            lock
+    else
+            unlock
+    fi
+    exit
+}
+
+function lock {
+    loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+    if [[ "$loadedmodules" = *kded_rotation* ]]; then
+            qdbus org.kde.kded5 /kded unloadModule kded_rotation
+            qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText rotation-locked-landscape "Автоповорот экрана выключен"
+    fi
+    exit
+}
+
+function unlock {
+    loadedmodules=$(qdbus org.kde.kded5 /kded loadedModules)
+    if [[ "$loadedmodules" != *kded_rotation* ]]; then
+            qdbus org.kde.kded5 /kded loadModule rotation
+            qdbus org.kde.plasmashell /org/kde/osdService org.kde.osdService.showText rotation-allowed "Автоповорот экрана включен"
+    fi
+    exit
+}
+
+function next {
+    CURRENT=$(xrandr | grep primary | awk '{print $5}')
+    #echo $CURRENT
+    case $CURRENT in
+    "(normal" )
+      ROTATION="right-up"
+      ;;
+    "right" )
+      ROTATION="bottom-up"
+      ;;
+    "left" )
+      ROTATION="normal"
+      ;;
+    "inverted" )
+      ROTATION="left-up"
+      ;;
+    *)
+      ;;
+    esac
+}
+
 PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
 
 GENERIC_PROP="Coordinate Transformation Matrix"
@@ -13,6 +64,9 @@ function usage {
   echo "-o | --output : A display name like eDP-1 (primary display is used by default)"
   echo "-r | --rotation : normal, bottom-up, left-up, right-up"
   echo "-h | --help : Arguments help"
+  echo "-t | --togglelock : toggle rotation lock"
+  echo "-l | --lock : lock rotation"
+  echo "-u | --unlock : unlock rotation"
   exit 1
 }
 
@@ -26,6 +80,18 @@ while [ "$1" != "" ]; do
                               ;;
     -h | --help )
                               usage
+                              ;;
+    -t | --togglelock )
+                              toggle
+                              ;;
+    -l | --lock )
+                              lock
+                              ;;
+    -u | --unlock )
+                              unlock
+                              ;;
+    -n | --next )
+                              next
                               ;;
     * )
                               usage

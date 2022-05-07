@@ -11,53 +11,16 @@ ScreenRotator::ScreenRotator(QObject *parent, const QVariantList &) :
 	sensor = new QOrientationSensor(this);
 
 	sensor->start();
+	//watcher.start("mode_watcher");
 
-	connect(sensor, &QOrientationSensor::readingChanged, this, &ScreenRotator::startProgress);
-	connect(&timer, &QTimer::timeout, this, &ScreenRotator::updateProgress);
+	connect(sensor, &QOrientationSensor::readingChanged, this, &ScreenRotator::updateOrientation);
 
 	updateOrientation();
-
-	progress = -1;
-
-}
-
-void ScreenRotator::startProgress() {
-	if (progress == -1) {
-		timer.start(25);
-		progress = 0;
-	}
-}
-
-void ScreenRotator::updateProgress() {
-	if (!sensor->reading()) return;
-	if (sensor->reading()->orientation() != currentOrientation) {
-		progress++;
-
-		QDBusMessage msg = QDBusMessage::createMethodCall(
-		    QStringLiteral("org.kde.plasmashell"),
-		    QStringLiteral("/org/kde/osdService"),
-		    QStringLiteral("org.kde.osdService"),
-		    QStringLiteral("mediaPlayerVolumeChanged")
-		);
-
-		msg.setArguments({progress, "screen", "view-refresh"});
-
-		QDBusConnection::sessionBus().asyncCall(msg);
-
-		if (progress == 100) {
-			updateOrientation();
-			timer.stop();
-			progress = -1;
-		}
-
-	} else {
-		timer.stop();
-		progress = -1;
-	}
 }
 
 void ScreenRotator::updateOrientation() {
 	if (!sensor->reading()) return;
+	if (sensor->reading()->orientation() == currentOrientation) return;
 	currentOrientation = sensor->reading()->orientation();
 	QString o;
 	switch (currentOrientation) {
