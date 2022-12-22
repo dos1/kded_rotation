@@ -1,6 +1,10 @@
 #!/bin/bash
 
-PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
+PRIMARY_DISPLAY="1"
+if [ -z "$WAYLAND_DISPLAY" ]
+then
+  PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
+fi
 
 GENERIC_PROP="Coordinate Transformation Matrix"
 GENERIC=""
@@ -33,27 +37,37 @@ while [ "$1" != "" ]; do
   shift
 done
 
-if [ -z "$ROTATION" ]; then
-  usage
-fi
+case $ROTATION in
+  normal )
+    GENERIC="1 0 0 0 1 0 0 0 1"
+    WACOM="0"
+    ;;
+  bottom-up )
+    ROTATION="inverted"
+    GENERIC="-1 0 1 0 -1 1 0 0 1"
+    WACOM="3"
+    ;;
+  left-up )
+    ROTATION="left"
+    GENERIC="0 -1 1 1 0 0 0 0 1"
+    WACOM="2"
+    ;;
+  right-up )
+    ROTATION="right"
+    GENERIC="0 1 0 -1 0 1 0 0 1"
+    WACOM="1"
+    ;;
+  * )
+    usage
+    ;;
+esac
 
-if [ "$ROTATION" == "normal" ]; then
-  xrandr --output $PRIMARY_DISPLAY --rotate normal
-  GENERIC="1 0 0 0 1 0 0 0 1"
-  WACOM="0"
-elif [ "$ROTATION" == "bottom-up" ]; then
-  xrandr --output $PRIMARY_DISPLAY --rotate inverted
-  GENERIC="-1 0 1 0 -1 1 0 0 1"
-  WACOM="3"
-elif [ "$ROTATION" == "left-up" ]; then
-  xrandr --output $PRIMARY_DISPLAY --rotate left
-  GENERIC="0 -1 1 1 0 0 0 0 1"
-  WACOM="2"
-elif [ "$ROTATION" == "right-up" ]; then
-  xrandr --output $PRIMARY_DISPLAY --rotate right
-  GENERIC="0 1 0 -1 0 1 0 0 1"
-  WACOM="1"
+if [ -n "WAYLAND_DISPLAY" ]
+then
+  exec kscreen-doctor output."$PRIMARY_DISPLAY".rotation."$ROTATION"
+  # KDE Wayland doesn't need xinput
 fi
+xrandr --output "$PRIMARY_DISPLAY" --rotate "$ROTATION"
 
 for id in $(xinput list --id-only)
 do
