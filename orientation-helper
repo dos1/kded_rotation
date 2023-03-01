@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRIMARY_DISPLAY=$(xrandr | grep primary | awk '{print $1}')
+PRIMARY_DISPLAY=$(xrandr | grep 'primary\|\bconnected' | awk '{print $1}')
 
 GENERIC_PROP="Coordinate Transformation Matrix"
 GENERIC=""
