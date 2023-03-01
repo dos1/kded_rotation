@@ -16,6 +16,10 @@ function usage {
   exit 1
 }
 
+function verbose {
+    [ -z "$VERBOSE" ] || printf -- "$@"
+}
+
 while [ "$1" != "" ]; do
   case $1 in
     -o | --output )           shift
@@ -23,6 +27,9 @@ while [ "$1" != "" ]; do
                               ;;
     -r | --rotation )         shift
                               ROTATION=$1
+                              ;;
+    -v | --verbose)
+                              VERBOSE=true
                               ;;
     -h | --help )
                               usage
@@ -55,9 +62,12 @@ elif [ "$ROTATION" == "right-up" ]; then
   WACOM="1"
 fi
 
+verbose "Rotation: %s\nDisplay: %s\n\n" "$ROTATION" "$PRIMARY_DISPLAY"
 for id in $(xinput list --id-only)
 do
   props=$(xinput list-props $id)
+  device_name=$( head -n1 <<< "$props" | cut -d\  -f2- | tr -d '[:punct:]' )
+  verbose "Device %s: " "$device_name"
 
   # Filter for touch devices
   IS_TOUCH=$(echo $props | grep -i 'Touchscreen\|ELAN\|Pen\|Eraser\|wacom\|maXTouch\|eGalaxTouch\|IPTS')
@@ -71,10 +81,16 @@ do
 
       if [ -n "$HAS_WACOM" ]
       then
+        verbose "wacom\n"
         xinput set-prop $id "$WACOM_PROP" $WACOM 2>/dev/null
       elif [ -n "$HAS_GENERIC" ]
       then
+        verbose "generic\n"
         xinput set-prop $id "$GENERIC_PROP" $GENERIC 2>/dev/null
+      else
+        verbose "unknown\n"
       fi
+    else
+      verbose "not touch\n"
     fi
 done
